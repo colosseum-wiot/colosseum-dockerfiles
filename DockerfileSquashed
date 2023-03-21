@@ -14,21 +14,24 @@
 #   limitations under the License.
 #==================================================================================
 
-FROM ubuntu:20.04 as buildenv
+FROM ubuntu:20.04
 ARG password=ChangeMe
 
 # Set timezone
 ENV TZ=America/New_York
 # These are required to enable ssh connection to use it on colosseum
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
-    apt-get update && apt-get install -y openssh-server htop nano \
-    ssh-keygen -A \
-    mkdir -p /run/sshd \
-    echo "root:${password}" | chpasswd \
-    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
-
-# Can be replaced with your own workspace
-WORKDIR /workspace 
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+  && echo $TZ > /etc/timezone \
+  && apt-get update && apt-get install -y \
+    openssh-server \
+    htop \
+    nano \
+    vim \
+  && ssh-keygen -A \
+  && mkdir -p /run/sshd \
+  && echo "root:${password}" | chpasswd \
+  && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config \
+  && rm -rf /var/lib/apt/lists/*
 
 # This command will be always overwritten by the system
 CMD ["/usr/sbin/sshd", "-D"]
