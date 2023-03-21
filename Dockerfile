@@ -31,5 +31,5 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh
 
 WORKDIR /workspace
 
-# this command will be always overwritten by the system
+# This command will be always overwritten by the system
 CMD ["/usr/sbin/sshd", "-D"]
