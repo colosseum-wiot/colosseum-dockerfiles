@@ -14,13 +14,13 @@
 #   limitations under the License.
 #==================================================================================
 
-FROM ubuntu:20.04 as buildenv
+FROM ubuntu:20.04
 ARG password=ChangeMe
 
 # Set timezone
 ENV TZ=America/New_York
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN apt-get update && apt-get install -y openssh-server htop nano
+RUN apt-get update && apt-get install -y openssh-server htop nano vim
 
 # These are required to enable ssh connection to use it on colosseum
 RUN ssh-keygen -A
@@ -28,6 +28,8 @@ RUN mkdir -p /run/sshd
 RUN echo "root:${password}" | chpasswd
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
 
+# Delete apt libraries to reduce the size of the final image
+RUN rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace
 
