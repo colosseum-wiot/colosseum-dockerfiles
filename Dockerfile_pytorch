@@ -1,5 +1,5 @@
 #==================================================================================
-#       Copyright (c) 2022 Northeastern University
+#       Copyright (c) 2023 Northeastern University
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -30,6 +30,16 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh
 
 # Delete apt libraries to reduce the size of the final image
 RUN rm -rf /var/lib/apt/lists/*
+
+# Install sudo, git , tmux python3-is-python, gcc, g++, make, cmake, python3-distutils, python3-apt,  python3-pip
+RUN apt-get update && apt-get install -y sudo git tmux python-is-python3 gcc g++ make cmake python3-distutils python3-apt python3-pip
+
+# Install python packages
+RUN pip3 install --upgrade pip
+RUN pip3 install numpy pandas matplotlib seaborn scikit-learn scipy
+
+# install pytorch
+RUN pip3 install torch torchvision torchaudio
 
 WORKDIR /workspace
 

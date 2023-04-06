@@ -1,5 +1,5 @@
 #==================================================================================
-#       Copyright (c) 2022 Northeastern University
+#       Copyright (c) 2023 Northeastern University
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 #   limitations under the License.
 #==================================================================================
 
-FROM ubuntu:20.04
+FROM nvidia/cuda:11.4.0-cudnn8-devel-ubuntu20.04
 ARG password=ChangeMe
 
 # Set timezone
@@ -28,20 +28,35 @@ RUN mkdir -p /run/sshd
 RUN echo "root:${password}" | chpasswd
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
 
-# Delete apt libraries to reduce the size of the final image
-RUN rm -rf /var/lib/apt/lists/*
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    wget \
+    build-essential \
+    cmake \
+    libopenblas-dev \
+    liblapack-dev \
+    libhdf5-dev \
+    libopencv-dev \
+    libssl-dev \
+    libffi-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libtiff-dev \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    python3-dev \
+    python3-pip \
+    python3-setuptools \
+    python3-wheel \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install sudo, git , tmux python3-is-python, gcc, g++, make, cmake, python3-distutils, python3-apt,  python3-pip
-RUN apt-get update && apt-get install -y sudo git tmux python-is-python3 gcc g++ make cmake python3-distutils python3-apt python3-pip
+# Install TensorFlow with GPU support
+RUN pip3 install --no-cache-dir tensorflow-gpu==2.7.0
+RUN pip3 install protobuf==3.20.*
 
-# Install python packages
-RUN pip3 install --upgrade pip
-RUN pip3 install numpy pandas matplotlib seaborn scikit-learn scipy
-
-# install pytorch
-RUN pip3 install torch torchvision torchaudio
-
+# Set up working directory
 WORKDIR /workspace
-
-# This command will be always overwritten by the system
-CMD ["/usr/sbin/sshd", "-D"]
